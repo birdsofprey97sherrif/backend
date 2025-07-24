@@ -32,3 +32,26 @@ exports.getActiveElection = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+exports.deactivateElection = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const election = await Election.findById(id);
+    if (!election) {
+      return res.status(404).json({ error: "Election not found." });
+    }
+
+    if (!election.isActive) {
+      return res.status(400).json({ error: "Election is already inactive." });
+    }
+
+    election.isActive = false;
+    await election.save();
+
+    res
+      .status(200)
+      .json({ message: "Election deactivated successfully.", election });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
